@@ -1,4 +1,4 @@
-# 📰 NewsApp (UIKit)
+# 📰 NewsApp (UIKit) - Devam Ediyor
 
 NewsApp, **UIKit** kullanılarak geliştirilmiş modern bir iOS haber uygulamasıdır.  
 Uygulama, **News API** üzerinden güncel haberleri listeler; **gerçek API tabanlı arama**,  
