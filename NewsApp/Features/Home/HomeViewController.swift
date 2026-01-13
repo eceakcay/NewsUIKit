@@ -40,7 +40,7 @@ final class HomeViewController: UIViewController {
     private func configureNavigationBar() {
         title = "News"
         navigationController?.navigationBar.prefersLargeTitles = true
-    }
+        }
 
     // MARK: - TableView
     private func setupTableView() {
@@ -105,6 +105,11 @@ final class HomeViewController: UIViewController {
             self?.stateView.isHidden = true
             self?.viewModel.fetchArticles()
         }
+    }
+    
+    @objc private func openSettings() {
+        let settingsVC = SettingsViewController(style: .insetGrouped)
+        navigationController?.pushViewController(settingsVC, animated: true)
     }
 }
 

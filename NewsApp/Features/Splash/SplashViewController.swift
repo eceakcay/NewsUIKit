@@ -52,13 +52,15 @@ final class SplashViewController: UIViewController {
         ])
     }
     
-    private func navigateToHome() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            let homeVC = HomeViewController()
-            let navController = UINavigationController(rootViewController: homeVC)
-            navController.modalPresentationStyle = .fullScreen
-            navController.modalTransitionStyle = .crossDissolve
-            self.present(navController, animated: true)
+    private func navigateToMainTabBar() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            
+            let tabBarController = MainTabBarController()
+            
+            guard let sceneDelegate = UIApplication.shared.connectedScenes
+                .first?.delegate as? SceneDelegate else { return }
+            
+            sceneDelegate.window?.rootViewController = tabBarController
         }
     }
     
@@ -69,7 +71,7 @@ final class SplashViewController: UIViewController {
             self.logoImageView.transform = .identity
             self.titleLabel.alpha = 1
         } completion: { _ in
-            self.navigateToHome()
+            self.navigateToMainTabBar()
         }
     }
     
