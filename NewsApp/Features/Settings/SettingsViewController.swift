@@ -2,80 +2,83 @@
 //  SettingsViewController.swift
 //  NewsApp
 //
-//  Created by Ece Akcay on 8.01.2026.
+//  Created by Ece Akcay
 //
 
 import UIKit
 import UserNotifications
 
-
 final class SettingsViewController: UITableViewController {
-    
-    enum SettingItem: Int, CaseIterable {
-        case notifications
-        
-        var title: String {
-            switch self {
-            case .notifications:
-                return "Notifications"
-            }
-        }
-    }
 
+    // MARK: - Properties
+    private let notificationSwitch = UISwitch()
+
+    private let notificationKey = "notifications_enabled"
+
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Settings"
         navigationController?.navigationBar.prefersLargeTitles = true
+        setupSwitch()
     }
-    
+
+    // MARK: - Switch Setup
+    private func setupSwitch() {
+        notificationSwitch.addTarget(
+            self,
+            action: #selector(notificationSwitchChanged),
+            for: .valueChanged
+        )
+
+        // Daha önce kaydedilmiş durumu yükle
+        notificationSwitch.isOn =
+        UserDefaults.standard.bool(forKey: notificationKey)
+    }
+
     // MARK: - TableView DataSource
-    
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        SettingItem.allCases.count
+    override func tableView(_ tableView: UITableView,
+                            numberOfRowsInSection section: Int) -> Int {
+        return 1
     }
-    
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell = UITableViewCell(style: .value1, reuseIdentifier: nil)
-        
-        let item = SettingItem(rawValue: indexPath.row)
-        cell.textLabel?.text = item?.title
-        cell.accessoryType = .disclosureIndicator
-        
+
+    override func tableView(_ tableView: UITableView,
+                            cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+        let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
+        cell.textLabel?.text = "Bildirimler"
+        cell.accessoryView = notificationSwitch
+        cell.selectionStyle = .none
         return cell
     }
-    
-    //MARK: - Tableview Delegate
-    
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        tableView.deselectRow(at: indexPath, animated: true)
-        
-        if indexPath.row == SettingItem.notifications.rawValue {
+
+    // MARK: - Switch Action
+    @objc private func notificationSwitchChanged() {
+        let isEnabled = notificationSwitch.isOn
+        UserDefaults.standard.set(isEnabled, forKey: notificationKey)
+
+        if isEnabled {
             requestNotificationPermission()
+        } else {
+            NotificationManager.shared.cancelNotification()
         }
     }
-    
+
+    // MARK: - Notification Permission
     private func requestNotificationPermission() {
         let center = UNUserNotificationCenter.current()
-        
-        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
             DispatchQueue.main.async {
-                let message = granted
-                ? "Notifications allowed ✅"
-                : "Notifications denied ❌"
-                
-                let alert = UIAlertController(
-                    title: "Notifications",
-                    message: message,
-                    preferredStyle: .alert
-                )
-                
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
-                self.present(alert, animated: true)
+                if granted {
+                    // ✅ İzin verildiyse bildirimi planla
+                    NotificationManager.shared.scheduleDailyNotification()
+                } else {
+                    // ❌ İzin verilmediyse switch’i geri kapat
+                    self.notificationSwitch.isOn = false
+                    UserDefaults.standard.set(false, forKey: self.notificationKey)
+                }
             }
         }
     }
 }
-
-
