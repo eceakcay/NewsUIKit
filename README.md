@@ -1,115 +1,72 @@
-# 📰 NewsApp (UIKit) - Devam Ediyor
+# 📰 NewsApp (UIKit) - Modern iOS News Client
 
-NewsApp, **UIKit** kullanılarak geliştirilmiş modern bir iOS haber uygulamasıdır.  
-Uygulama, **News API** üzerinden güncel haberleri listeler; **gerçek API tabanlı arama**,  
-**pagination**, **loading & error state**, **bildirim izni** gibi gerçek dünya ihtiyaçlarını karşılar.
+NewsApp, **UIKit** ve **MVVM** mimarisi kullanılarak geliştirilmiş, Apple News standartlarında bir kullanıcı deneyimi sunan modern bir iOS haber uygulamasıdır. Uygulama, **News API** üzerinden küresel haberleri gerçek zamanlı olarak çeker ve gelişmiş arama, kategori ve okuma özelliklerini barındırır.
 
-Bu proje, **UIKit + MVVM mimarisi** öğrenmek ve uygulamak amacıyla geliştirilmiştir.
+
 
 ---
 
-## 🚀 Özellikler
+## ✨ Öne Çıkan Özellikler
 
-- 📰 Güncel haber akışı (News API)
-- 🔍 Gerçek API tabanlı arama (search endpoint)
-- ⏬ Pagination (infinite scroll)
-- ⏳ Loading göstergesi (spinner)
-- ❌ Error & Empty State UI
-- 🖼️ Haber görselleri (Kingfisher)
-- 🔔 Bildirim izni yönetimi (UserNotifications)
-- ⚙️ Settings ekranı (Navbar ile)
-- 🧭 UINavigationController tabanlı akış
-
----
-
-## 🧠 Mimari
-
-Uygulama **MVVM (Model–View–ViewModel)** mimarisiyle geliştirilmiştir.
-
-### 📦 Model
-- `Article`
-- `NewsResponse`
-
-Sadece veri yapıları içerir, iş mantığı barındırmaz.
+- **Modern Card UI:** `UITableView` (Inset Grouped) stili ile derinlik algısı yüksek, modern kart tasarımı.
+- **🌓 Manuel & Otomatik Dark Mode:** Sistem ayarlarıyla tam uyumlu veya uygulama içinden kontrol edilebilir Karanlık Mod desteği.
+- **🔍 Gelişmiş Arama:** API tabanlı, performans odaklı "Everything" endpoint entegrasyonu.
+- **📳 Haptic Feedback:** Kullanıcı etkileşimlerini güçlendiren dokunsal geri bildirimler (`UISelectionFeedbackGenerator`).
+- **🔄 Akıllı Yenileme:** "Pull-to-Refresh" ve sonsuz kaydırma (Infinite Scroll/Pagination) desteği.
+- **🖼️ Efektif Görsel Yönetimi:** Kingfisher ile asenkron görsel yükleme, cache yönetimi ve "fade" geçiş efektleri.
+- **⚙️ Gelişmiş Ayarlar:** İkonlarla zenginleştirilmiş, gruplandırılmış sistem tarzı ayarlar ekranı.
+- **📲 Bildirim Yönetimi:** `UserNotifications` ile modern bildirim izni isteme ve yönetme akışı.
 
 ---
 
-### 🧠 ViewModel
-- `HomeViewModel`
+## 🧠 Mimari: MVVM (Model-View-ViewModel)
 
-Sorumluluklar:
-- API çağrılarını yönetmek
-- Pagination state yönetimi
-- Search state yönetimi
-- Loading / Error durumlarını View’a bildirmek
+Proje, kodun okunabilirliğini ve test edilebilirliğini artıran **MVVM** mimarisi ile inşa edilmiştir.
 
-ViewModel, **ViewController’ı doğrudan tanımaz**.  
-Delegate pattern kullanır ve `weak` referans ile memory leak önlenir.
 
----
 
-### 🖥 View (UIKit)
-- `HomeViewController`
-- `SettingsViewController`
-- `ArticleCell`
-- `StateView`
+### 📦 Katmanlar
 
-Sorumluluklar:
-- UI çizimi
-- Kullanıcı etkileşimini almak
-- ViewModel’e yalnızca **niyet** bildirmek
-
-> ViewController **API çağırmaz** ve **iş mantığı içermez**.
+- **Model:** `Article` ve `NewsResponse` (Decodable veri yapıları).
+- **View (UIKit):** UI bileşenleri **Programmatic Auto Layout** kullanılarak kodla oluşturulmuştur (Storyboards kullanılmamıştır).
+- **ViewModel:** İş mantığını, API koordinasyonunu ve görünüm durumlarını (Loading/Error/Success) yönetir.
+- **Network Layer:** `URLSession` tabanlı, generic ve ölçeklenebilir bir ağ katmanı.
 
 ---
 
-## 🌐 Network Katmanı
+## 🌓 Karanlık Mod (Dark Mode)
 
-- `URLSession` kullanılarak geliştirilmiştir
-- Apple’ın native ve güvenli network çözümü tercih edilmiştir
-- Network işlemleri `NetworkManager` üzerinden soyutlanmıştır
+Uygulama, Apple'ın **Semantic Colors** (label, systemBackground vb.) standartlarını kullanır. Bu sayede sadece renkler değil, gölgeler ve kontrast oranları da modlar arası geçişte otomatik olarak optimize edilir.
 
-### Kullanılan Endpoint’ler
-- `top-headlines` → Ana haber akışı
-- `everything` → Arama (Search)
+
 
 ---
 
 ## 🛠 Kullanılan Teknolojiler
 
-- Swift
-- UIKit
-- URLSession
-- MVVM
-- UITableView
-- UINavigationController
-- UserNotifications
-- Kingfisher
+- **Dil:** Swift 5.x
+- **UI Framework:** UIKit (Programmatic UI)
+- **Networking:** URLSession
+- **Image Caching:** [Kingfisher](https://github.com/onevcat/Kingfisher)
+- **Local Storage:** UserDefaults
+- **Feedback:** UISelectionFeedbackGenerator
 
 ---
 
-## 🔔 Bildirimler
+## 📂 Proje Yapısı
 
-Uygulama, kullanıcıdan bildirim izni almak için  
-**UserNotifications framework**’ünü kullanır.
-
-> Bu projede gerçek push notification gönderimi yoktur.  
-> Amaç, izin yönetimi ve sistem entegrasyonunu göstermektir.
-
----
-
-## 📂 Proje Yapısı (Özet)
-
+```text
 NewsApp
 ├── Core
-│ ├── Network
-│ ├── UI
-│ └── Constants
+│   ├── Network         # Generic NetworkManager ve API tanımları
+│   ├── Theme           # Renk paleti ve global stil sabitleri (Indigo Theme)
 ├── Features
-│ ├── Home
-│ └── Settings
-├── Models
-└── Resources
+│   ├── Home            # Ana akış, Search ve Pagination mantığı
+│   ├── Detail          # Okuma deneyimi, WebView linkleme ve Paylaşım
+│   └── Settings        # Karanlık Mod ve Bildirim ayarları
+├── Components          # Custom ArticleCell, StateView (Empty/Error states)
+└── Models              # API veri modelleri
+```
 
 ---
 
@@ -137,11 +94,9 @@ NewsApp
 ## 🎯 Amaç
 
 Bu proje:
-- UIKit öğrenmek isteyenler için
-- MVVM mimarisini anlamak isteyenler için
-- Gerçek hayata yakın bir iOS uygulama örneği sunmak için
-
-geliştirilmiştir.
+- **Access Control:** Kod içinde private ve final anahtar kelimeleri kullanılarak encapsulation prensiplerine uyulmuştur.
+- **Memory Management:** [weak self] kullanımı ile "Retain Cycle" oluşumu engellenmiş ve bellek sızıntıları önlenmiştir.
+- **Clean Code:** Görünüm bileşenleri (UI Components) closure bazlı tanımlanarak viewDidLoad kalabalığı önlenmiştir.
 
 ---
 
