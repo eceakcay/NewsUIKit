@@ -6,11 +6,23 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ArticleDetailViewController: UIViewController {
     
     //MARK: - Properties
     private let article: Article
+    
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
+    
+    private let articleImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -20,10 +32,17 @@ final class ArticleDetailViewController: UIViewController {
         return label
     }()
     
-    private let subtitleLabel: UILabel = {
+    private let metaLabel: UILabel = {
         let label = UILabel()
-        label.font = .boldSystemFont(ofSize: 16)
+        label.font = .systemFont(ofSize: 13)
         label.textColor = .secondaryLabel
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let contentLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 17)
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -41,6 +60,7 @@ final class ArticleDetailViewController: UIViewController {
     }
     
     //MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -61,32 +81,74 @@ final class ArticleDetailViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.addSubview(titleLabel)
-        view.addSubview(subtitleLabel)
-        
-        NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+               contentView.translatesAutoresizingMaskIntoConstraints = false
 
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
-            subtitleLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            subtitleLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor)
-               ])
-    }
+               view.addSubview(scrollView)
+               scrollView.addSubview(contentView)
+
+               contentView.addSubview(articleImageView)
+               contentView.addSubview(titleLabel)
+               contentView.addSubview(metaLabel)
+               contentView.addSubview(contentLabel)
+
+               NSLayoutConstraint.activate([
+                   // ScrollView
+                   scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+                   scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                   scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                   scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+                   // ContentView
+                   contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                   contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+                   contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+                   contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+                   contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+
+                   // Image
+                   articleImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+                   articleImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+                   articleImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+                   articleImageView.heightAnchor.constraint(equalToConstant: 220),
+
+                   // Title
+                   titleLabel.topAnchor.constraint(equalTo: articleImageView.bottomAnchor, constant: 16),
+                   titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+                   titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+
+                   // Meta
+                   metaLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+                   metaLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+
+                   // Content
+                   contentLabel.topAnchor.constraint(equalTo: metaLabel.bottomAnchor, constant: 16),
+                   contentLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+                   contentLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
+                   contentLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24)
+               ])    }
     
-    //verileri bağlama
+    // MARK: - Bind Data(Veri bAĞLAMA)
     private func bindData() {
         titleLabel.text = article.title
-        subtitleLabel.text = article.description
+        contentLabel.text = article.content ?? article.description
+        
+        let source = article.source?.name ?? "Unknown Source"
+        metaLabel.text = source
+        
+        if let imageUrl = URL(string: article.urlToImage ?? "") {
+            articleImageView.kf.setImage(with: imageUrl)
+        }
     }
     
     //paylaş butonu için action
-    @objc private func shareTapped() {
-        let activityVC = UIActivityViewController(
-            activityItems: [article.title],
-            applicationActivities: nil
-        )
-        present(activityVC, animated: true)
-    }
+    // MARK: - Share
+        @objc private func shareTapped() {
+            let items = [article.title ?? "", article.url ?? ""]
+            let activityVC = UIActivityViewController(
+                activityItems: items,
+                applicationActivities: nil
+            )
+            present(activityVC, animated: true)
+        }
 }
